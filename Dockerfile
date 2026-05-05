@@ -1,4 +1,5 @@
-FROM timberio/vector:0.29.1-debian
+FROM timberio/vector:0.55.0-alpine
+RUN apk add --no-cache bash
 COPY vector-configs /etc/vector/
 COPY ./start-fly-log-transporter.sh .
 CMD ["bash", "start-fly-log-transporter.sh"]

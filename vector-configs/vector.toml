@@ -15,12 +15,38 @@
   auth.user_password.password = "${ACCESS_TOKEN?}"
   connection_name = "Fly logs stream"
 
-[transforms.log_json]
+[transforms.log_json_from_fly]
   type = "remap"
   inputs = ["nats"]
   source = '''
   . = parse_json!(.message)
   '''
+
+[transforms.log_json]
+type = "remap"
+inputs = ["log_json_from_fly"]
+source = '''
+if exists(.message) && is_string(.message) {
+  parsed = parse_regex(.message, r'^(?P<message_text>.*?)(?P<metadata>\{.*\})\s*$') ?? null
+
+  if parsed != null {
+    metadata = parse_json(parsed.metadata) ?? {}
+
+    if is_object(metadata) {
+      # Only keep trimmed prefix as .message if there actually is one
+      message_text = strip_whitespace(parsed.message_text)
+
+      if message_text != "" {
+        .message = message_text
+      } else {
+        del(.message)
+      }
+
+      . = merge(., metadata)
+    }
+  }
+}
+'''
 
 [sinks.fly_log_metrics_prometheus]
   type = "prometheus_exporter" # required

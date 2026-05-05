@@ -1,5 +1,13 @@
 # fly-log-shipper
 
+Fork of [superfly/fly-log-shipper](https://github.com/superfly/fly-log-shipper) with added support for parsing JSON log lines, optionally following a plain text message:
+
+- `This is a log` -> `{message: "This is a log"}`
+- `This has JSON metadata {"foo": "bar"}` => `{message: "This has JSON metadata", foo: "bar"}`
+- `{"json": "only json"}` => `{json: "only json"}`
+
+# fly-log-shipper
+
 Ship logs from fly to other providers using [NATS](https://docs.nats.io/) and [Vector](https://vector.dev/)
 
 In this repo you will find various [Vector Sinks](https://vector.dev/docs/reference/configuration/sinks/) along with the required fly config. The end result is a Fly.IO application that automatically reads your organisation logs and sends them to external providers.
@@ -22,12 +30,12 @@ However for advanced uses you can still configure a NATs client in your apps to 
 ## NATS source configuration
 
 | Secret         | Description                                                                                                          |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------|
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `ORG`          | Organisation slug (default to `personal`)                                                                            |
 | `ACCESS_TOKEN` | Fly personal access token (required; set with `fly secrets set ACCESS_TOKEN=$(fly tokens create readonly personal)`) |
 | `SUBJECT`      | Subject to subscribe to. See [[NATS]] below (defaults to `logs.>`)                                                   |
 | `QUEUE`        | Arbitrary queue name if you want to run multiple log processes for HA and avoid duplicate messages being shipped     |
-| `NETWORK`      | 6PN network, if you want to run log-shipper through a  WireGuard connection (defaults to `fdaa:0:0`)                 |
+| `NETWORK`      | 6PN network, if you want to run log-shipper through a WireGuard connection (defaults to `fdaa:0:0`)                  |
 
 After generating your `fly.toml`, remember to update the internal port to match the `vector` internal port
 defined in `vector-configs/vector.toml`. Not doing so will result in health checks failing on deployment.
@@ -79,15 +87,15 @@ Set the secrets below associated with your desired log destination
 
 ### Baselime
 
-| Secret              | Description                                   |
-|---------------------|-----------------------------------------------|
-| `BASELIME_API_KEY`  | Baselime API key                              |
-| `BASELIME_DATASET`  | (optional) Baselime dataset (default "flyio") |
+| Secret             | Description                                   |
+| ------------------ | --------------------------------------------- |
+| `BASELIME_API_KEY` | Baselime API key                              |
+| `BASELIME_DATASET` | (optional) Baselime dataset (default "flyio") |
 
 ### Better Stack Logs (formerly Logtail)
 
 | Secret                        | Description                                                               |
-|-------------------------------|---------------------------------------------------------------------------|
+| ----------------------------- | ------------------------------------------------------------------------- |
 | `BETTER_STACK_SOURCE_TOKEN`   | Better Stack Telemetry source token                                       |
 | `BETTER_STACK_INGESTING_HOST` | Better Stack source ingesting host (default is `in.logs.betterstack.com`) |
 
@@ -172,17 +180,17 @@ One of these is required for New Relic logs. New Relic recommend the license key
 
 ### OpsVerse
 
-| Secret                  | Description            |
-| ----------------------- | ---------------------- |
-| `OPSVERSE_LOGS_ENDPOINT`| OpsVerse Logs Endpoint |
-| `OPSVERSE_USERNAME`     | OpsVerse Username      |
-| `OPSVERSE_PASSWORD`     | OpsVerse Password      |
+| Secret                   | Description            |
+| ------------------------ | ---------------------- |
+| `OPSVERSE_LOGS_ENDPOINT` | OpsVerse Logs Endpoint |
+| `OPSVERSE_USERNAME`      | OpsVerse Username      |
+| `OPSVERSE_PASSWORD`      | OpsVerse Password      |
 
 ### Papertrail
 
-| Secret                | Description         |
-| --------------------- | ------------------- |
-| `PAPERTRAIL_ENDPOINT` | Papertrail endpoint |
+| Secret                      | Description                          |
+| --------------------------- | ------------------------------------ |
+| `PAPERTRAIL_ENDPOINT`       | Papertrail endpoint                  |
 | `PAPERTRAIL_ENCODING_CODEC` | Papertrail codec (default is "json") |
 
 ### Sematext
@@ -206,7 +214,7 @@ For **self-hosted SigNoz**, set `SIGNOZ_INGESTION_URL` to your own ingestion end
 ### Uptrace
 
 | Secret                  | Description        |
-| -----------------       | ------------------ |
+| ----------------------- | ------------------ |
 | `UPTRACE_API_KEY`       | Uptrace API key    |
 | `UPTRACE_PROJECT`       | Uptrace project ID |
 | `UPTRACE_SINK_INPUT`    | `"log_json"`, etc. |
@@ -234,10 +242,10 @@ For UPTRACE_SINK_ENCODING Vector expects one of `avro`, `gelf`, `json`, `logfmt`
 
 HTTP sink that can be used for sending log alerts to Slack.
 
-| Secret                 | Description            |
-| ---------------------- | ---------------------- |
-| `SLACK_WEBHOOK_URL`    | Slack WebHook URL      |
-| `SLACK_ALERT_KEYWORDS` | Keywords to alert on   |
+| Secret                 | Description          |
+| ---------------------- | -------------------- |
+| `SLACK_WEBHOOK_URL`    | Slack WebHook URL    |
+| `SLACK_ALERT_KEYWORDS` | Keywords to alert on |
 
 Example for setting keywords `fly secrets set SLACK_ALERT_KEYWORDS="[r'SIGTERM', r'reboot']"`
 
