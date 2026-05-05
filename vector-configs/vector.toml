@@ -33,9 +33,13 @@ if exists(.message) && is_string(.message) {
     metadata = parse_json(parsed.metadata) ?? {}
 
     if is_object(metadata) {
-      # Only keep trimmed prefix as .message if there actually is one
-      message_text = strip_whitespace(parsed.message_text)
+      message_text = ""
 
+      if exists(parsed.message_text) && is_string(parsed.message_text) {
+        message_text = strip_whitespace!(parsed.message_text)
+      }
+
+      # Only keep trimmed prefix as .message if there actually is one
       if message_text != "" {
         .message = message_text
       } else {
@@ -45,8 +49,7 @@ if exists(.message) && is_string(.message) {
       . = merge(., metadata)
     }
   }
-}
-'''
+}'''
 
 [sinks.fly_log_metrics_prometheus]
   type = "prometheus_exporter" # required
