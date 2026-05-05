@@ -42,7 +42,7 @@ if exists(.message) && is_string(.message) {
         del(.message)
       }
 
-      . = merge(., metadata)
+      . = merge!(., metadata)
     }
   }
 }
