@@ -27,7 +27,12 @@ type = "remap"
 inputs = ["log_json_from_fly"]
 source = '''
 if exists(.message) && is_string(.message) {
-  parsed = parse_regex(.message, r'^(?P<message_text>.*?)(?P<metadata>\{.*\})\s*$') ?? null
+  # Allow ANSI SGR escape codes around the JSON suffix.
+  # Handles both a real ESC char (\x1b) and literal "\u001b" sequences.
+  parsed = parse_regex(
+    .message,
+    r'^(?P<message_text>.*?)(?:(?:\x1b|\\u001b)\[[0-9;]*m)*\s*(?P<metadata>\{.*\})(?:\s*(?:(?:\x1b|\\u001b)\[[0-9;]*m)*)\s*$'
+  ) ?? null
 
   if parsed != null {
     metadata = parse_json(parsed.metadata) ?? {}
