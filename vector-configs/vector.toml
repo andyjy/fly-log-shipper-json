@@ -42,9 +42,13 @@ if exists(.message) && is_string(.message) {
         del(.message)
       }
 
-      . = merge!(., metadata)
+      . = merge!(., metadata, deep: true)
     }
   }
+}
+
+if (is_object(.fly)) {
+  .fly.org = get_env_var("ORG")
 }
 '''
 
