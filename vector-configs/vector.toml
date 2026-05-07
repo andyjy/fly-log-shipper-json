@@ -48,7 +48,7 @@ if exists(.message) && is_string(.message) {
     metadata = parse_json(parsed.metadata) ?? null
 
     if is_object(metadata) && is_object(.) {
-      message_text = replace_regex(to_string(parsed.message_text), r'\s+$', "")
+      message_text = replace(to_string(parsed.message_text), r'\s+$', "")
 
       # Only keep trimmed prefix as .message if there actually is one
       if message_text != "" {
