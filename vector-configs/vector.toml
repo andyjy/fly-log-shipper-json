@@ -52,8 +52,9 @@ if exists(.message) && is_string(.message) {
   }
 }
 
-if (is_object(.fly)) {
-  .fly.org = get_env_var("ORG")
+org = get_env_var("ORG") ?? null
+if org != null && is_object(.fly) {
+  .fly.org = org
 }
 '''
 
