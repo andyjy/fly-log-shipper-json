@@ -27,11 +27,12 @@ type = "remap"
 inputs = ["log_json_from_fly"]
 source = '''
 if exists(.message) && is_string(.message) {
-  # Allow ANSI SGR escape codes around the JSON suffix.
+  # Detect JSON-encoded structured log data based on first occurence of opening curly brace '{'
+  # either as the first character or preceded by whitespace (ignoring any ANSI SGR escape codes)
   # Handles both a real ESC char (\x1b) and literal "\u001b" sequences.
   parsed = parse_regex(
     .message,
-    r'^(?P<message_text>.*?)(?P<sep>\s*)(?:(?:\x1b|\\u001b)\[[0-9;]*m)*\s*(?P<metadata>\{.*\})(?:\s*(?:(?:\x1b|\\u001b)\[[0-9;]*m)*)\s*$'
+    r'^(?P<message_text>.*?)(^|(?P<sep>\s+))(?:(?:\x1b|\\u001b)\[[0-9;]*m)*\s*(?P<metadata>\{.*\})(?:\s*(?:(?:\x1b|\\u001b)\[[0-9;]*m)*)\s*$'
   ) ?? null
 
   if parsed != null {
